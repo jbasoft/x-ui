@@ -80,7 +80,7 @@ confirm() {
 }
 
 confirm_restart() {
-    confirm "是否重启面板，重启面板也会重启 xray" "y"
+    confirm "Whether to restart the panel, restarting the panel will also restart xray" "y"
     if [[ $? == 0 ]]; then
         restart
     else
@@ -89,7 +89,7 @@ confirm_restart() {
 }
 
 before_show_menu() {
-    echo && echo -n -e "${yellow}按回车返回主菜单: ${plain}" && read temp
+    echo && echo -n -e "${yellow}Press enter to return to the main menu: ${plain}" && read temp
     show_menu
 }
 
@@ -146,7 +146,7 @@ uninstall() {
 }
 
 reset_user() {
-    confirm "确定要将用户名和密码重置为 admin 吗" "n"
+    confirm "Make sure you want to reset your username and password to admin is it" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -154,12 +154,12 @@ reset_user() {
         return 0
     fi
     /usr/local/x-ui/x-ui setting -username admin -password admin
-    echo -e "用户名和密码已重置为 ${green}admin${plain}，现在请重启面板"
+    echo -e "Username and password have been reset to ${green}admin${plain}，Please restart the panel now"
     confirm_restart
 }
 
 reset_config() {
-    confirm "确定要重置所有面板设置吗，账号数据不会丢失，用户名和密码不会改变" "n"
+    confirm "Are you sure you want to reset all panel settings, account data will not be lost, user name and password will not change" "n"
     if [[ $? != 0 ]]; then
         if [[ $# == 0 ]]; then
             show_menu
@@ -167,7 +167,7 @@ reset_config() {
         return 0
     fi
     /usr/local/x-ui/x-ui setting -reset
-    echo -e "所有面板设置已重置为默认值，现在请重启面板，并使用默认的 ${green}54321${plain} 端口访问面板"
+    echo -e "All panel settings have been reset to default, please restart the panel now and use the default ${green}54321${plain} Port Access Panel"
     confirm_restart
 }
 
@@ -187,7 +187,7 @@ set_port() {
         before_show_menu
     else
         /usr/local/x-ui/x-ui setting -port ${port}
-        echo -e "设置端口完毕，现在请重启面板，并使用新设置的端口 ${green}${port}${plain} 访问面板"
+        echo -e "The port is set, now please restart the panel and use the newly set port ${green}${port}${plain} to access the panel"
         confirm_restart
     fi
 }
@@ -196,15 +196,15 @@ start() {
     check_status
     if [[ $? == 0 ]]; then
         echo ""
-        LOGI "面板已运行，无需再次启动，如需重启请选择重启"
+        LOGI "The panel is already running and there is no need to start it again. If you need to restart it, please select Restart"
     else
         systemctl start x-ui
         sleep 2
         check_status
         if [[ $? == 0 ]]; then
-            LOGI "x-ui 启动成功"
+            LOGI "x-ui Start successfully"
         else
-            LOGE "面板启动失败，可能是因为启动时间超过了两秒，请稍后查看日志信息"
+            LOGE "The panel failed to start, it may be because the startup time exceeds two seconds, please check the log information later"
         fi
     fi
 
@@ -410,19 +410,19 @@ show_xray_status() {
 
 ssl_cert_issue() {
     echo -E ""
-    LOGD "******使用说明******"
-    LOGI "该脚本将使用Acme脚本申请证书,使用时需保证:"
-    LOGI "1.知晓Cloudflare 注册邮箱"
-    LOGI "2.知晓Cloudflare Global API Key"
-    LOGI "3.域名已通过Cloudflare进行解析到当前服务器"
-    LOGI "4.该脚本申请证书默认安装路径为/root/cert目录"
-    confirm "我已确认以上内容[y/n]" "y"
+    LOGD "******Instructions******"
+    LOGI "This script will use the Acme script to apply for a certificate. When using it, you must ensure:"
+    LOGI "1. Know the Cloudflare registered email address"
+    LOGI "2. Know Cloudflare Global API Key"
+    LOGI "3. The domain name has been resolved to the current server by Cloudflare"
+    LOGI "4. The default installation path for this script to apply for a certificate is the /root/cert directory"
+    confirm "I have confirmed the above [y/n]" "y"
     if [ $? -eq 0 ]; then
         cd ~
         LOGI "安装Acme脚本"
         curl https://get.acme.sh | sh
         if [ $? -ne 0 ]; then
-            LOGE "安装acme脚本失败"
+            LOGE "Failed to install acme script"
             exit 1
         fi
         CF_Domain=""
@@ -446,7 +446,7 @@ ssl_cert_issue() {
         LOGD "你的注册邮箱为:${CF_AccountEmail}"
         ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
         if [ $? -ne 0 ]; then
-            LOGE "修改默认CA为Lets'Encrypt失败,脚本退出"
+            LOGE "Modify the default CA to Lets'Encrypt failed, the script exits"
             exit 1
         fi
         export CF_Key="${CF_GlobalKey}"
@@ -484,51 +484,51 @@ ssl_cert_issue() {
 }
 
 show_usage() {
-    echo "x-ui 管理脚本使用方法: "
+    echo "How to use x-ui management script:"
     echo "------------------------------------------"
-    echo "x-ui              - 显示管理菜单 (功能更多)"
-    echo "x-ui start        - 启动 x-ui 面板"
-    echo "x-ui stop         - 停止 x-ui 面板"
-    echo "x-ui restart      - 重启 x-ui 面板"
-    echo "x-ui status       - 查看 x-ui 状态"
-    echo "x-ui enable       - 设置 x-ui 开机自启"
-    echo "x-ui disable      - 取消 x-ui 开机自启"
-    echo "x-ui log          - 查看 x-ui 日志"
-    echo "x-ui v2-ui        - 迁移本机器的 v2-ui 账号数据至 x-ui"
-    echo "x-ui update       - 更新 x-ui 面板"
-    echo "x-ui install      - 安装 x-ui 面板"
-    echo "x-ui uninstall    - 卸载 x-ui 面板"
+    echo "x-ui - show admin menu (more features)"
+    echo "x-ui start - start x-ui panel"
+    echo "x-ui stop - stop x-ui panel"
+    echo "x-ui restart - restart the x-ui panel"
+    echo "x-ui status - view x-ui status"
+    echo "x-ui enable - set x-ui to boot automatically"
+    echo "x-ui disable - cancel x-ui boot automatically"
+    echo "x-ui log - view x-ui log"
+    echo "x-ui v2-ui - migrate the v2-ui account data of this machine to x-ui"
+    echo "x-ui update - update x-ui panel"
+    echo "x-ui install - install x-ui panel"
+    echo "x-ui uninstall - uninstall x-ui panel"
     echo "------------------------------------------"
 }
 
 show_menu() {
     echo -e "
-  ${green}x-ui 面板管理脚本${plain}
-  ${green}0.${plain} 退出脚本
-————————————————
-  ${green}1.${plain} 安装 x-ui
-  ${green}2.${plain} 更新 x-ui
-  ${green}3.${plain} 卸载 x-ui
-————————————————
-  ${green}4.${plain} 重置用户名密码
-  ${green}5.${plain} 重置面板设置
-  ${green}6.${plain} 设置面板端口
-  ${green}7.${plain} 查看当前面板设置
-————————————————
-  ${green}8.${plain} 启动 x-ui
-  ${green}9.${plain} 停止 x-ui
-  ${green}10.${plain} 重启 x-ui
-  ${green}11.${plain} 查看 x-ui 状态
-  ${green}12.${plain} 查看 x-ui 日志
-————————————————
-  ${green}13.${plain} 设置 x-ui 开机自启
-  ${green}14.${plain} 取消 x-ui 开机自启
-————————————————
-  ${green}15.${plain} 一键安装 bbr (最新内核)
-  ${green}16.${plain} 一键申请SSL证书(acme申请)
+  ${green}x-ui panel management script ${plain}
+  ${green}0.${plain} exit script
+———————————————
+  ${green}1.${plain} install x-ui
+  ${green}2.${plain} update x-ui
+  ${green}3.${plain} uninstall x-ui
+———————————————
+  ${green}4.${plain} Reset username and password
+  ${green}5.${plain} Reset panel settings
+  ${green}6.${plain} set the panel port
+  ${green}7.${plain} View the current panel settings
+———————————————
+  ${green}8.${plain} start x-ui
+  ${green}9.${plain} stop x-ui
+  ${green}10.${plain} restart x-ui
+  ${green}11.${plain} View x-ui status
+  ${green}12.${plain} View x-ui logs
+———————————————
+  ${green}13.${plain} set x-ui to boot automatically
+  ${green}14.${plain} cancel x-ui autostart
+———————————————
+  ${green}15.${plain} One-click installation of bbr (latest kernel)
+  ${green}16.${plain} One-click application for SSL certificate (acme application)
  "
     show_status
-    echo && read -p "请输入选择 [0-16]: " num
+    echo && read -p "please enter selection [0-16]: " num
 
     case "${num}" in
     0)
@@ -583,7 +583,7 @@ show_menu() {
         ssl_cert_issue
         ;;
     *)
-        LOGE "请输入正确的数字 [0-16]"
+        LOGE "Please enter the correct number [0-16]"
         ;;
     esac
 }
